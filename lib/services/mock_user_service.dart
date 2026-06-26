@@ -1,24 +1,27 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
+import '../models/usuario.dart';
 
 class MockUserService {
-  Future<Map<String, dynamic>?> obtenerUsuario(
-      String codigo) async {
-
-    final String response =
-        await rootBundle.loadString(
+  Future<List<Usuario>> obtenerUsuarios() async {
+    final String response = await rootBundle.loadString(
       'lib/data/usuarios_mock.json',
     );
 
-    final List<dynamic> usuarios =
-        json.decode(response);
+    final List<dynamic> data = json.decode(response);
 
-    for (var usuario in usuarios) {
-      if (usuario['codigo'] == codigo) {
-        return usuario;
-      }
+    return data.map((item) => Usuario.fromJson(item)).toList();
+  }
+
+  Future<Usuario?> buscarUsuarioPorCodigo(String codigo) async {
+    final usuarios = await obtenerUsuarios();
+
+    try {
+      return usuarios.firstWhere(
+        (usuario) => usuario.codigo == codigo,
+      );
+    } catch (e) {
+      return null;
     }
-
-    return null;
   }
 }

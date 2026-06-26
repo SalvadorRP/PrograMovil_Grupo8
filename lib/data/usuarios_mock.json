@@ -1,37 +1,27 @@
 [
   {
     "codigo": "20203263",
-    "nombre": "Pedro",
-    "apellido": "Morales",
-    "correo": "20203263@aloe.ulima.edu.pe",
-    "tipoUsuario": "estudiante"
+    "nombre": "Pedro Morales",
+    "correo": "20203263@aloe.ulima.edu.pe"
   },
   {
     "codigo": "20211111",
-    "nombre": "Milene",
-    "apellido": "Garrido",
-    "correo": "20211111@aloe.ulima.edu.pe",
-    "tipoUsuario": "estudiante"
+    "nombre": "Milene Garrido",
+    "correo": "20211111@aloe.ulima.edu.pe"
   },
   {
     "codigo": "20194536",
-    "nombre": "Salvador",
-    "apellido": "Rodriguez",
-    "correo": "20194536@aloe.ulima.edu.pe",
-    "tipoUsuario": "estudiante"
+    "nombre": "Salvador Rodriguez",
+    "correo": "20194536@aloe.ulima.edu.pe"
   },
   {
     "codigo": "20230286",
-    "nombre": "Sebastian",
-    "apellido": "Balbuena",
-    "correo": "20230286@aloe.ulima.edu.pe",
-    "tipoUsuario": "estudiante"
+    "nombre": "Sebastian Balbuena",
+    "correo": "20230286@aloe.ulima.edu.pe"
   },
   {
     "codigo": "20221190",
-    "nombre": "Jairo",
-    "apellido": "Gutierrez",
-    "correo": "20221190@aloe.ulima.edu.pe",
-    "tipoUsuario": "estudiante"
+    "nombre": "Jairo Gutierrez",
+    "correo": "20221190@aloe.ulima.edu.pe"
   }
 ]
