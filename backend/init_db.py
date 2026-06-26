@@ -100,6 +100,22 @@ session.add_all(products)
 # ── Usuarios de prueba ──────────────────────────
 users = [
   User(
+    username="20203263",
+    password="morales48",
+    first_name="Pedro",
+    last_name="Estudiante",
+    email="pedro@ulima.edu.pe",
+    status=True
+  ),
+  User(
+    username="20200001",
+    password="123456",
+    first_name="Sebastián",
+    last_name="Estudiante",
+    email="sebastian@ulima.edu.pe",
+    status=True
+  ),
+  User(
     username="20200001",
     password="123456",
     first_name="Sebastián",
