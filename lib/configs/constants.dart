@@ -1,5 +1,5 @@
 // Para Chrome o celular físico en la misma WiFi:
-const String baseUrl = 'http://localhost:5000';
+const String baseUrl = 'https://programovil-backend.onrender.com';
 
 // Si usas emulador Android, descomenta esta y comenta la de arriba:
 // const String baseUrl = 'http://10.0.2.2:5000';
