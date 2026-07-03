@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../models/usuario.dart';
 import '../../pages/menu/menu_page.dart';
 import '../../services/auth_service.dart';
 
@@ -13,30 +12,10 @@ class LoginController extends GetxController {
 
   final RxBool obscurePassword = true.obs;
 
-  // controla si se muestra o no el campo contraseña
-  final RxBool mostrarPassword = false.obs;
-
   void togglePasswordVisibility() {
     obscurePassword.value = !obscurePassword.value;
   }
 
-  /// Paso 1: validar código (ahora simplemente mostramos la contraseña)
-  Future<void> validarCodigo() async {
-    final codigo = codigoController.text.trim();
-
-    if (codigo.isEmpty) {
-      _mostrarDialogo(
-        titulo: 'Código requerido',
-        mensaje: 'Ingrese su código universitario.',
-      );
-      return;
-    }
-
-    // Ya no verificamos localmente, simplemente mostramos el input de password
-    mostrarPassword.value = true;
-  }
-
-  /// Paso 2: iniciar sesión con contraseña
   Future<void> iniciarSesion() async {
     final codigo = codigoController.text.trim();
     final password = passwordController.text.trim();
@@ -74,11 +53,6 @@ class LoginController extends GetxController {
         mensaje: response.message ?? 'Usuario o contraseña incorrectos.',
       );
     }
-  }
-
-  void reiniciarLogin() {
-    mostrarPassword.value = false;
-    passwordController.clear();
   }
 
   void _mostrarDialogo({

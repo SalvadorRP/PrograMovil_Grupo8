@@ -77,7 +77,7 @@ class LoginPage extends StatelessWidget {
             ),
 
             Expanded(
-              child: Padding(
+              child: SingleChildScrollView(
                 padding: const EdgeInsets.all(24),
                 child: Obx(
                   () => Column(
@@ -95,11 +95,9 @@ class LoginPage extends StatelessWidget {
 
                       const SizedBox(height: 12),
 
-                      Text(
-                        controller.mostrarPassword.value
-                            ? 'Código validado. Ahora ingresa tu contraseña para continuar.'
-                            : 'Ingresa tu código universitario para validar tu acceso.',
-                        style: const TextStyle(
+                      const Text(
+                        'Ingresa tu código universitario y contraseña para acceder.',
+                        style: TextStyle(
                           fontSize: 17,
                           color: Colors.grey,
                         ),
@@ -120,7 +118,6 @@ class LoginPage extends StatelessWidget {
                       TextField(
                         controller: controller.codigoController,
                         keyboardType: TextInputType.number,
-                        enabled: !controller.mostrarPassword.value,
                         decoration: InputDecoration(
                           hintText: 'Ej. 20203263',
                           filled: true,
@@ -132,76 +129,56 @@ class LoginPage extends StatelessWidget {
                         ),
                       ),
 
-                      if (controller.mostrarPassword.value) ...[
-                        const SizedBox(height: 24),
+                      const SizedBox(height: 24),
 
-                        const Text(
-                          'Contraseña',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                          ),
+                      const Text(
+                        'Contraseña',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
                         ),
+                      ),
 
-                        const SizedBox(height: 12),
+                      const SizedBox(height: 12),
 
-                        TextField(
-                          controller: controller.passwordController,
-                          obscureText: controller.obscurePassword.value,
-                          decoration: InputDecoration(
-                            hintText: 'Ingresa tu contraseña',
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(18),
-                              borderSide: BorderSide.none,
-                            ),
-                            suffixIcon: IconButton(
-                              onPressed:
-                                  controller.togglePasswordVisibility,
-                              icon: Icon(
-                                controller.obscurePassword.value
-                                    ? Icons.visibility_off
-                                    : Icons.visibility,
-                              ),
+                      TextField(
+                        controller: controller.passwordController,
+                        obscureText: controller.obscurePassword.value,
+                        decoration: InputDecoration(
+                          hintText: 'Ingresa tu contraseña',
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide.none,
+                          ),
+                          suffixIcon: IconButton(
+                            onPressed: controller.togglePasswordVisibility,
+                            icon: Icon(
+                              controller.obscurePassword.value
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
                             ),
                           ),
                         ),
+                      ),
 
-                        const SizedBox(height: 16),
-
-                        TextButton(
-                          onPressed: controller.reiniciarLogin,
-                          child: const Text(
-                            'Cambiar código',
-                            style: TextStyle(
-                              color: Color(0xFF9A0036),
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ],
-
-                      const Spacer(),
+                      const SizedBox(height: 40),
 
                       SizedBox(
                         width: double.infinity,
                         height: 60,
                         child: ElevatedButton(
-                          onPressed: controller.mostrarPassword.value
-                              ? controller.iniciarSesion
-                              : controller.validarCodigo,
+                          onPressed: controller.iniciarSesion,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFB77B90),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
                             ),
                           ),
-                          child: Text(
-                            controller.mostrarPassword.value
-                                ? 'Ingresar'
-                                : 'Continuar',
-                            style: const TextStyle(
+                          child: const Text(
+                            'Ingresar',
+                            style: TextStyle(
                               fontSize: 22,
                               color: Colors.white,
                             ),
@@ -209,7 +186,7 @@ class LoginPage extends StatelessWidget {
                         ),
                       ),
 
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 20),
                     ],
                   ),
                 ),
