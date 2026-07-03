@@ -8,43 +8,25 @@ class PickupOrderController extends GetxController {
   final CartController _cartController = Get.find<CartController>();
   final OrderService _orderService = OrderService();
 
-  late final Rx<PickupOrder> order;
+  final Rx<PickupOrder?> order = Rx<PickupOrder?>(null);
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
-  final Rx<int?> orderId = Rx<int?>(null);
+
+  /// ID de la orden activa. Vive en CartController para sobrevivir a la
+  /// recreación de este controller entre navegaciones.
+  Rx<int?> get orderId => _cartController.activeOrderId;
 
   @override
   void onInit() {
     super.onInit();
-    // Construir la orden con los datos del carrito
-    _initializeOrder();
+    // Si ya existe una orden activa (creada previamente), traer su estado real.
+    // Si no hay ninguna, no se crea nada automáticamente.
+    if (orderId.value != null && order.value == null) {
+      fetchOrderStatus();
+    }
   }
 
-  void _initializeOrder() {
-    // Convertir los CartEntry a datos para la orden
-    final items = _cartController.entries.map((entry) {
-      return {
-        "product_id": entry.product.id,
-        "name": entry.product.name,
-        "quantity": entry.quantity.value,
-        "price": entry.total,
-        "unit_price": entry.unitPrice,
-        "size": entry.selectedSize,
-        "sugar": entry.selectedSugar,
-        "extras": entry.selectedExtras,
-      };
-    }).toList();
-
-    order = PickupOrder(
-      orderNumber: 'A${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}',
-      status: 'pendiente',
-      total: _cartController.subtotal,
-      remainingMinutes: 5,
-      items: items,
-    ).obs;
-  }
-
-  /// Crear orden en el backend
+  /// Crear orden en el backend. Solo debe llamarse desde la confirmación de pago.
   Future<void> createOrder() async {
     isLoading.value = true;
     errorMessage.value = '';
@@ -70,8 +52,8 @@ class PickupOrderController extends GetxController {
       if (response.success && response.data != null) {
         final backendOrder = PickupOrder.fromJson(response.data!);
         order.value = backendOrder;
-        orderId.value = backendOrder.id;
-        
+        _cartController.activeOrderId.value = backendOrder.id;
+
         Get.snackbar(
           'Éxito',
           'Orden creada exitosamente',
@@ -117,7 +99,10 @@ class PickupOrderController extends GetxController {
       if (response.success && response.data != null) {
         final updatedOrder = PickupOrder.fromJson(response.data!);
         order.value = updatedOrder;
-        
+        if (newStatus == 'recogido') {
+          _cartController.activeOrderId.value = null;
+        }
+
         Get.snackbar(
           'Éxito',
           'Orden actualizada a: $newStatus',

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'pagar_qr.dart'; // Ajusta la ruta según tu proyecto
+import '../carrito/cart_controller.dart';
 
 class ConfirmarPedidoPage extends StatelessWidget {
   const ConfirmarPedidoPage({super.key});
@@ -8,6 +9,7 @@ class ConfirmarPedidoPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(ConfirmarPedidoController());
+    final cartControl = Get.find<CartController>();
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
@@ -26,7 +28,9 @@ class ConfirmarPedidoPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildProductRow(),
+              _buildProductRow(controller, cartControl),
+              if (controller.mostrarDetalle.value)
+                _buildDetalleProductos(cartControl),
               const SizedBox(height: 24),
               const Text(
                 '¿Cuándo lo recoges?',
@@ -82,7 +86,7 @@ class ConfirmarPedidoPage extends StatelessWidget {
                       );
                       return;
                     }
-                    Get.to(() => const PagarQRPage());
+                    Get.to(() => PagarQRPage(total: cartControl.subtotal));
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF7A0C2E),
@@ -92,9 +96,9 @@ class ConfirmarPedidoPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
-                    'Confirmar y pagar · S/ 5.50',
-                    style: TextStyle(fontSize: 16),
+                  child: Text(
+                    'Confirmar y pagar · S/ ${cartControl.subtotal.toStringAsFixed(2)}',
+                    style: const TextStyle(fontSize: 16),
                   ),
                 ),
               ),
@@ -106,7 +110,8 @@ class ConfirmarPedidoPage extends StatelessWidget {
     );
   }
 
-  Widget _buildProductRow() {
+  Widget _buildProductRow(
+      ConfirmarPedidoController controller, CartController cartControl) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -123,33 +128,98 @@ class ConfirmarPedidoPage extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text(
-            '1 producto',
-            style: TextStyle(fontSize: 16),
+          Text(
+            '${cartControl.totalItems} producto(s)',
+            style: const TextStyle(fontSize: 16),
           ),
           GestureDetector(
             onTap: () {
-              Get.snackbar(
-                'Detalle',
-                'Aquí iría el detalle del producto',
-                backgroundColor: Colors.white,
-                colorText: const Color(0xFF7A0C2E),
-              );
+              controller.mostrarDetalle.value = !controller.mostrarDetalle.value;
             },
-            child: const Text(
-              'Ver detalle',
-              style: TextStyle(
+            child: Text(
+              controller.mostrarDetalle.value ? 'Ocultar detalle' : 'Ver detalle',
+              style: const TextStyle(
                 fontSize: 14,
                 color: Color(0xFF7A0C2E),
                 fontWeight: FontWeight.w500,
               ),
             ),
           ),
-          const Text(
-            'S/ 5.50',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          Text(
+            'S/ ${cartControl.subtotal.toStringAsFixed(2)}',
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDetalleProductos(CartController cartControl) {
+    return Container(
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(10),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: cartControl.entries.map((entry) {
+          final isLast = entry == cartControl.entries.last;
+          return Padding(
+            padding: EdgeInsets.only(bottom: isLast ? 0 : 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        '${entry.product.name} x${entry.quantity.value}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      'S/ ${entry.total.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF7A0C2E),
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Tamaño: ${entry.selectedSize}',
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                ),
+                Text(
+                  'Azúcar: ${entry.selectedSugar}',
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                ),
+                if (entry.selectedExtras.isNotEmpty)
+                  Text(
+                    'Extras: ${entry.extrasLabel}',
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  ),
+                if (!isLast)
+                  Divider(color: Colors.grey.shade200, height: 20),
+              ],
+            ),
+          );
+        }).toList(),
       ),
     );
   }
@@ -251,4 +321,5 @@ class ConfirmarPedidoController extends GetxController {
   var tiempoSeleccionado = 'Lo antes posible'.obs;
   var metodoPagoIndex = 0.obs;
   var aceptaServicio = true.obs;
+  var mostrarDetalle = false.obs;
 }

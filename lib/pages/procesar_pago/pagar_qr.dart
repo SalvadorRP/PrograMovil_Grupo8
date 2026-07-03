@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../pickup_order/pickup_order_page.dart';
+import '../pickup_order/pickup_order_controller.dart';
+import '../carrito/cart_controller.dart';
 
 class PagarQRPage extends StatelessWidget {
-  const PagarQRPage({super.key});
+  final double total;
+
+  const PagarQRPage({super.key, required this.total});
 
   @override
   Widget build(BuildContext context) {
@@ -57,10 +62,10 @@ class PagarQRPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            const Center(
+            Center(
               child: Text(
-                'S/ 5.50',
-                style: TextStyle(fontSize: 42, fontWeight: FontWeight.bold, color: Colors.black87),
+                'S/ ${total.toStringAsFixed(2)}',
+                style: const TextStyle(fontSize: 42, fontWeight: FontWeight.bold, color: Colors.black87),
               ),
             ),
             const SizedBox(height: 32),
@@ -112,7 +117,21 @@ class PagarQRPage extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
+                  // Este es el único punto donde se crea la orden real en el backend
+                  final pickupController =
+                      Get.isRegistered<PickupOrderController>()
+                          ? Get.find<PickupOrderController>()
+                          : Get.put(PickupOrderController());
+
+                  await pickupController.createOrder();
+
+                  final cartController = Get.find<CartController>();
+                  if (!cartController.hasActiveOrder) {
+                    // La creación falló; el error ya se mostró en un snackbar
+                    return;
+                  }
+
                   Get.defaultDialog(
                     title: 'Pago confirmado',
                     middleText: 'Tu pago se ha procesado correctamente.',
@@ -120,9 +139,8 @@ class PagarQRPage extends StatelessWidget {
                     confirmTextColor: Colors.white,
                     buttonColor: const Color(0xFF7A0C2E),
                     onConfirm: () {
-                      Get.back();
-                      Get.back();
-                      Get.back();
+                      Get.back(); // cierra el diálogo
+                      Get.to(() => const PickupOrderPage());
                     },
                   );
                 },

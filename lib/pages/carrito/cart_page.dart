@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'cart_controller.dart';
-import '../payment/payment_placeholder_page.dart';
+import '../procesar_pago/procesar_pago.dart';
+import '../pickup_order/pickup_order_page.dart';
 
 class CartPage extends StatelessWidget {
   final CartController cartControl = Get.find<CartController>();
@@ -319,9 +320,7 @@ class CartPage extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: () => Get.to(() => PaymentPlaceholderPage(
-                        total: cartControl.subtotal,
-                      )),
+                  onPressed: () => Get.to(() => const ConfirmarPedidoPage()),
                   icon: const Icon(Icons.shopping_bag_outlined, size: 18),
                   label: const Text(
                     'Continuar al Pago',
@@ -356,15 +355,7 @@ class CartPage extends StatelessWidget {
       showUnselectedLabels: true,
       onTap: (index) {
         if (index == 0) Get.back();
-        if (index == 2) {
-          Get.snackbar(
-            'Navegación',
-            'Pantalla en desarrollo (Solo Front)',
-            backgroundColor: Colors.white,
-            colorText: const Color(0xFF7A0C2E),
-            snackPosition: SnackPosition.BOTTOM,
-          );
-        }
+        if (index == 2) Get.to(() => const PickupOrderPage());
       },
       items: const [
         BottomNavigationBarItem(

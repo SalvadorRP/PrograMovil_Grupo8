@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../models/pickup_order.dart';
 import '../menu/menu_page.dart';
 import '../carrito/cart_controller.dart';
+import '../carrito/cart_page.dart';
 import 'pickup_order_controller.dart';
 
 class PickupOrderPage extends StatefulWidget {
@@ -12,22 +14,10 @@ class PickupOrderPage extends StatefulWidget {
 }
 
 class _PickupOrderPageState extends State<PickupOrderPage> {
-  final PickupOrderController controller = Get.put(PickupOrderController());
-  bool _orderCreated = false;
-
-  @override
-  void initState() {
-    super.initState();
-    // Crear la orden en el backend automáticamente
-    _createOrder();
-  }
-
-  Future<void> _createOrder() async {
-    if (!_orderCreated) {
-      await controller.createOrder();
-      _orderCreated = true;
-    }
-  }
+  final PickupOrderController controller =
+      Get.isRegistered<PickupOrderController>()
+          ? Get.find<PickupOrderController>()
+          : Get.put(PickupOrderController());
 
   static const Color primaryColor = Color(0xFF7A0C2E);
 
@@ -47,8 +37,13 @@ class _PickupOrderPageState extends State<PickupOrderPage> {
       ),
       body: Obx(
         () {
-          // Mostrar loading mientras se crea la orden
-          if (controller.isLoading.value && controller.orderId.value == null) {
+          // No hay ninguna orden real creada todavía
+          if (controller.orderId.value == null) {
+            return _buildEmptyState();
+          }
+
+          // Mostrar loading mientras se obtiene el estado de la orden
+          if (controller.isLoading.value && controller.order.value == null) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -58,7 +53,7 @@ class _PickupOrderPageState extends State<PickupOrderPage> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Creando tu orden...',
+                    'Cargando tu orden...',
                     style: TextStyle(
                       color: Colors.grey.shade600,
                       fontSize: 16,
@@ -69,9 +64,9 @@ class _PickupOrderPageState extends State<PickupOrderPage> {
             );
           }
 
-          // Mostrar error si falló la creación
+          // Mostrar error si falló la obtención del estado
           if (controller.errorMessage.value.isNotEmpty &&
-              controller.orderId.value == null) {
+              controller.order.value == null) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -89,10 +84,7 @@ class _PickupOrderPageState extends State<PickupOrderPage> {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: () {
-                      _orderCreated = false;
-                      _createOrder();
-                    },
+                    onPressed: controller.fetchOrderStatus,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: primaryColor,
                     ),
@@ -103,19 +95,21 @@ class _PickupOrderPageState extends State<PickupOrderPage> {
             );
           }
 
-          // Mostrar la orden si se creó exitosamente
+          final currentOrder = controller.order.value!;
+
+          // Mostrar la orden
           return SingleChildScrollView(
             padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildOrderCard(),
+                _buildOrderCard(currentOrder),
                 const SizedBox(height: 20),
                 _buildProgressCard(),
                 const SizedBox(height: 20),
                 _buildProductsCard(),
                 const SizedBox(height: 20),
-                _buildQrCard(),
+                _buildQrCard(currentOrder),
                 const SizedBox(height: 20),
                 _buildLocationCard(),
                 const SizedBox(height: 30),
@@ -177,7 +171,49 @@ class _PickupOrderPageState extends State<PickupOrderPage> {
     );
   }
 
-  Widget _buildOrderCard() {
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.receipt_long_outlined,
+              size: 40,
+              color: Colors.grey.shade400,
+            ),
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            'No hay órdenes en este momento',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Cuando confirmes y pagues un pedido,\naparecerá aquí.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 13,
+              color: Colors.grey.shade500,
+              height: 1.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOrderCard(PickupOrder order) {
 
     return Container(
       width: double.infinity,
@@ -193,7 +229,7 @@ class _PickupOrderPageState extends State<PickupOrderPage> {
         children: [
 
           Text(
-            "Pedido #${controller.order.value.orderNumber}",
+            "Pedido #${order.orderNumber}",
             style: const TextStyle(
               color: Colors.white,
               fontSize: 22,
@@ -204,7 +240,7 @@ class _PickupOrderPageState extends State<PickupOrderPage> {
           const SizedBox(height: 10),
 
           Text(
-            controller.order.value.status,
+            order.status,
             style: const TextStyle(
               color: Colors.white70,
               fontSize: 16,
@@ -235,7 +271,7 @@ class _PickupOrderPageState extends State<PickupOrderPage> {
               const SizedBox(width: 8),
 
               Text(
-                "${controller.order.value.remainingMinutes} min restantes",
+                "${order.remainingMinutes} min restantes",
                 style: const TextStyle(
                   color: Colors.white,
                 ),
@@ -413,7 +449,7 @@ class _PickupOrderPageState extends State<PickupOrderPage> {
     );
   }
 
-  Widget _buildQrCard() {
+  Widget _buildQrCard(PickupOrder order) {
 
     return Card(
       elevation: 2,
@@ -457,7 +493,7 @@ class _PickupOrderPageState extends State<PickupOrderPage> {
             const SizedBox(height: 15),
 
             Text(
-              controller.order.value.orderNumber,
+              order.orderNumber,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 22,
@@ -527,13 +563,18 @@ class _PickupOrderPageState extends State<PickupOrderPage> {
           Get.offAll(() => MenuPage());
         }
         if (index == 1) {
-          Get.snackbar(
-            'Navegación',
-            'Pantalla en desarrollo (Solo Front)',
-            backgroundColor: Colors.white,
-            colorText: primaryColor,
-            snackPosition: SnackPosition.BOTTOM,
-          );
+          final cartController = Get.find<CartController>();
+          if (cartController.hasActiveOrder) {
+            Get.snackbar(
+              'Aviso',
+              'Ya hay una orden en este momento',
+              backgroundColor: Colors.white,
+              colorText: primaryColor,
+              snackPosition: SnackPosition.BOTTOM,
+            );
+          } else {
+            Get.to(() => CartPage());
+          }
         }
         if (index == 2) {
           // Ya estamos en Órdenes/Pickup

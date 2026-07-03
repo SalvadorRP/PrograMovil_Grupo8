@@ -34,6 +34,10 @@ class CartEntry {
 class CartController extends GetxController {
   final RxList<CartEntry> entries = <CartEntry>[].obs;
 
+  // ID de la orden real creada en el backend y pendiente de recojo (null si no hay ninguna)
+  final Rx<int?> activeOrderId = Rx<int?>(null);
+  bool get hasActiveOrder => activeOrderId.value != null;
+
   // ── Totales ──────────────────────────────────
   double get subtotal => entries.fold(0, (sum, e) => sum + e.total);
 

@@ -5,8 +5,8 @@ import '../carrito/cart_controller.dart';
 import '../carrito/cart_page.dart';
 import '../product_detail/product_detail_page.dart';
 import 'menu_controller.dart' as app;
-import '../procesar_pago/procesar_pago.dart';
 import '../../services/session_service.dart';
+import '../pickup_order/pickup_order_page.dart';
 
 class MenuPage extends StatelessWidget {
 
@@ -18,6 +18,20 @@ class MenuPage extends StatelessWidget {
   final CartController cartControl = Get.put(CartController());
 
   MenuPage({super.key, String? usuarioNombre}) : usuarioNombre = (usuarioNombre != null && usuarioNombre.isNotEmpty) ? usuarioNombre : SessionService.usuarioNombre;
+
+  void _irAlCarrito() {
+    if (cartControl.hasActiveOrder) {
+      Get.snackbar(
+        'Aviso',
+        'Ya hay una orden en este momento',
+        backgroundColor: Colors.white,
+        colorText: const Color(0xFF7A0C2E),
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } else {
+      Get.to(() => CartPage());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,13 +69,6 @@ class MenuPage extends StatelessWidget {
         );
       }),
       bottomNavigationBar: _buildBottomNavigationBar(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Get.to(() => const ConfirmarPedidoPage());
-        },
-      backgroundColor: const Color(0xFF7A0C2E),
-      child: const Icon(Icons.shopping_cart_checkout),
-      ),
     );
   }
 
@@ -104,7 +111,7 @@ class MenuPage extends StatelessWidget {
               Obx(() {
                 final count = cartControl.totalItems;
                 return GestureDetector(
-                  onTap: () => Get.to(() => CartPage()),
+                  onTap: _irAlCarrito,
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.white.withAlpha(38),
@@ -118,7 +125,7 @@ class MenuPage extends StatelessWidget {
                             Icons.shopping_cart_outlined,
                             color: Colors.white,
                           ),
-                          onPressed: () => Get.to(() => CartPage()),
+                          onPressed: _irAlCarrito,
                         ),
                         if (count > 0)
                           Positioned(
@@ -475,16 +482,8 @@ class MenuPage extends StatelessWidget {
       showSelectedLabels: true,
       showUnselectedLabels: true,
       onTap: (index) {
-        if (index == 1) Get.to(() => CartPage());
-        if (index == 2) {
-          Get.snackbar(
-            'Navegación',
-            'Pantalla en desarrollo (Solo Front)',
-            backgroundColor: Colors.white,
-            colorText: const Color(0xFF7A0C2E),
-            snackPosition: SnackPosition.BOTTOM,
-          );
-        }
+        if (index == 1) _irAlCarrito();
+        if (index == 2) Get.to(() => const PickupOrderPage());
       },
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Inicio'),
