@@ -3,7 +3,6 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../configs/constants.dart';
 import '../configs/generic_response.dart';
-import '../models/usuario.dart';
 
 class AuthService {
   Future<GenericResponse<Map<String, dynamic>>> login(

@@ -27,7 +27,7 @@ def fetch_all():
     products = query.all()
     response = jsonify({
       'message': 'Lista de productos',
-      'data': [p.to_dict() for p in products],
+      'data': [p.to_dict() for p in products], #diccionario
       'success': True,
       'error': None
     })
