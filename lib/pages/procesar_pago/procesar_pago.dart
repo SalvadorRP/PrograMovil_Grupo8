@@ -230,9 +230,12 @@ class ConfirmarPedidoPage extends StatelessWidget {
       {'title': 'En 30 min', 'subtitle': 'Recoge más tarde'},
       {'title': 'En 1 hora', 'subtitle': 'Para luego'},
     ];
-    return Row(
-      children: options.map((option) {
-        final isSelected = controller.tiempoSeleccionado.value == option['title'];
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      physics: const BouncingScrollPhysics(),
+      child: Row(
+        children: options.map((option) {
+          final isSelected = controller.tiempoSeleccionado.value == option['title'];
         return GestureDetector(
           onTap: () => controller.tiempoSeleccionado.value = option['title']!,
           child: Container(
@@ -268,6 +271,7 @@ class ConfirmarPedidoPage extends StatelessWidget {
           ),
         );
       }).toList(),
+      ),
     );
   }
 
