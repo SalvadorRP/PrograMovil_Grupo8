@@ -15,7 +15,7 @@ class MenuPage extends StatelessWidget {
   final app.MenuController control = Get.put(app.MenuController());
 
 
-  final CartController cartControl = Get.put(CartController());
+  final CartController cartControl = Get.put(CartController(), permanent: true);
 
   MenuPage({super.key, String? usuarioNombre}) : usuarioNombre = (usuarioNombre != null && usuarioNombre.isNotEmpty) ? usuarioNombre : SessionService.usuarioNombre;
 
